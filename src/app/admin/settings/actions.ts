@@ -21,8 +21,19 @@ export async function saveSettingsAction(
   const acceptingResponses = formData.get("acceptingResponses") === "on";
 
   if (!title) return { ok: false, error: "標題不能空白。" };
-  if (discordWebhookUrl && !/^https?:\/\//.test(discordWebhookUrl)) {
-    return { ok: false, error: "Discord Webhook URL 格式不正確。" };
+  // 只收 Discord webhook（https + 官方網域）：擋掉貼錯與「admin 帳號失守時
+  // 把含個資的申訴通知導去任意主機」的外洩面（安全審查 L3）。
+  if (discordWebhookUrl) {
+    let parsed: URL;
+    try {
+      parsed = new URL(discordWebhookUrl);
+    } catch {
+      return { ok: false, error: "Discord Webhook URL 格式不正確。" };
+    }
+    const allowedHosts = ["discord.com", "discordapp.com"];
+    if (parsed.protocol !== "https:" || !allowedHosts.includes(parsed.hostname)) {
+      return { ok: false, error: "Webhook 必須是 https://discord.com/…（或 discordapp.com）。" };
+    }
   }
 
   await updateSettings({
