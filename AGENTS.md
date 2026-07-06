@@ -1,0 +1,18 @@
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+
+# tpass-appeals（T-Appeals 學生申訴）
+
+學生填申訴 → 寫 DB + 通知 Discord 論壇頻道。生態系總覽、`services.json` 註冊表與
+`tpass` CLI 見上層 **tpass-ops** repo（`AGENTS.md`、`docs/`）。
+
+## 鐵律
+
+- **禁止 `npm run dev`**。檢查用 `npm run lint` + `npx tsc --noEmit`；跑起來用上層的 `scripts/tpass dev appeals`。
+- UI 一律 light-only Neobrutalism + OKLCH，照 `tpass-portal/docs/design.md`。
+- SSO 驗章照 `src/lib/tpass-auth.ts`（契約 v2），四鐵則（EdDSA 鎖定 / issuer / audience=tpass:appeals / exp）不可動；只碰公鑰，絕不 import auth 的私鑰。
+- 網域 / issuer / audience / DB 連線全 env 驅動（`src/config/auth.ts`），不寫死。
+- Discord webhook URL 內含 secret：只存 DB（/admin/settings），限 `discord.com`／`discordapp.com`，不進 git / log。
+- 每個 server action / route handler 內部都要重呼 `require*` guard（`src/lib/guard.ts`），不能只靠 layout 擋。
+- Schema 變更走 migration（migrations 進 git）；部署端 `deploy.sh` 跑 `prisma migrate deploy`。

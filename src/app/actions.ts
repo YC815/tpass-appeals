@@ -33,6 +33,20 @@ export async function submitAppealAction(answers: AnswerMap): Promise<SubmitResu
     return { ok: false, errors: fieldErrors, message: "有題目尚未完成。" };
   }
 
+  // 冷卻：同一人短時間內只收一件，防灌爆 DB 與 Discord 頻道（安全審查 L2）。
+  // 用最近一筆申訴的時間判斷，免加表；極端並發下的毫秒級競態可容忍（頂多多一件）。
+  const cooldownMs = 30 * 60 * 1000;
+  const recent = await prisma.appeal.findFirst({
+    where: {
+      respondentSub: session.sub,
+      submittedAt: { gt: new Date(Date.now() - cooldownMs) },
+    },
+    select: { id: true },
+  });
+  if (recent) {
+    return { ok: false, message: "剛剛已送出過申訴，請稍後再試（每 30 分鐘限一件）。" };
+  }
+
   const respondentName = session.name;
   const respondentEmail = session.email;
   const respondentGrade = deriveGrade(session.email);

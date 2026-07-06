@@ -51,6 +51,8 @@ model Appeal {
   submittedAt     DateTime @default(now())
 
   @@index([submittedAt])
+  // 冷卻查詢用（actions.ts：同一人最近 N 分鐘內是否已送過）
+  @@index([respondentSub, submittedAt])
 }
 
 // 檔案上傳題：送出前先傳，answers 內存 id 參照。存放機制見 src/lib/storage.ts。
