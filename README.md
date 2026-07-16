@@ -23,7 +23,8 @@ scripts/tpass check appeals   # push 前：lint + tsc --noEmit
 scripts/tpass db setup appeals  # 本機建 t_appeals role/db + prisma migrate
 ```
 
-**禁止裸 `npm run dev`。** env 必填清單以 `src/config/*.ts` 的 `REQUIRED` 為準，
+單獨跑本服務：`pnpm dev`（package.json 已設好 HTTPS + `appeals.lvh.me:3004`，含
+`NODE_TLS_REJECT_UNAUTHORIZED=0`）。env 必填清單以 `src/config/*.ts` 的 `REQUIRED` 為準，
 範本見 `.env.example`。
 
 ## 結構速記
