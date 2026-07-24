@@ -52,7 +52,7 @@ export default async function HomePage({
   const [questions, settings, admin] = await Promise.all([
     listQuestions(),
     getSettings(),
-    isAdmin(session.email),
+    isAdmin(session),
   ]);
 
   return (

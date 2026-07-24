@@ -10,14 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 學生會 email 白名單（超管種子來自 env，不入此表）。
-model Admin {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  addedBy   String // 操作者 email
-  createdAt DateTime @default(now())
-}
-
 // 單例設定列（id 固定 "singleton"）：申訴系統只有一份表單，用 key-value 表反而過度設計。
 model AppealSettings {
   id                 String  @id @default("singleton")
